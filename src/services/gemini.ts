@@ -154,21 +154,53 @@ export async function generateItinerary(
   const response = await ai.models.generateContent({
     model,
     contents: prompt,
-    config,
+    config: {
+      ...config,
+      responseMimeType: "application/json",
+      responseSchema: {
+        type: "OBJECT" as any,
+        properties: {
+          itinerary: { type: "STRING" as any },
+          places: {
+            type: "ARRAY" as any,
+            items: {
+              type: "OBJECT" as any,
+              properties: {
+                title: { type: "STRING" as any },
+                uri: { type: "STRING" as any },
+                lat: { type: "NUMBER" as any, description: "Latitude of the place" },
+                lng: { type: "NUMBER" as any, description: "Longitude of the place" }
+              },
+              required: ["title", "uri", "lat", "lng"]
+            }
+          },
+          weather: {
+            type: "OBJECT" as any,
+            properties: {
+              temp: { type: "STRING" as any },
+              condition: { type: "STRING" as any },
+              forecast: { type: "STRING" as any }
+            }
+          }
+        }
+      }
+    },
   });
 
-  const text = response.text || "Sorry, I couldn't generate an itinerary at this time.";
-  const chunks = response.candidates?.[0]?.groundingMetadata?.groundingChunks || [];
+  const data = JSON.parse(response.text || "{}");
+  const text = data.itinerary || "Sorry, I couldn't generate an itinerary at this time.";
   
-  const places = chunks
-    .filter((chunk: any) => chunk.maps)
+  // Use the places from the JSON response if available, otherwise fallback to grounding chunks
+  const places = data.places || response.candidates?.[0]?.groundingMetadata?.groundingChunks
+    ?.filter((chunk: any) => chunk.maps)
     .map((chunk: any) => ({
       title: chunk.maps.title,
       uri: chunk.maps.uri,
-    }));
+    })) || [];
 
   return {
     itinerary: text,
     places,
+    weather: data.weather
   };
 }

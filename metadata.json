@@ -1,5 +1,5 @@
 {
   "name": "VoyageAI",
-  "description": "The ultimate AI travel suite. Features cinematic video teasers, audio guides, and real-time grounding for the most immersive travel planning experience.",
+  "description": "The ultimate AI travel suite v4.0. Now featuring Interactive Maps, cinematic video teasers, audio guides, and real-time grounding for the most immersive travel planning experience.",
   "requestFramePermissions": ["geolocation"]
 }

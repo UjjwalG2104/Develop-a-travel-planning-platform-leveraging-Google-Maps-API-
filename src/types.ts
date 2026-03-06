@@ -20,9 +20,16 @@ export interface ItineraryResponse {
   places: Array<{
     title: string;
     uri: string;
+    lat?: number;
+    lng?: number;
   }>;
   audio_url?: string | null;
   video_url?: string | null;
+  weather?: {
+    temp: string;
+    condition: string;
+    forecast: string;
+  } | null;
 }
 
 export interface User {
@@ -41,8 +48,6 @@ export interface SavedItinerary extends ItineraryResponse {
   transportation: Transportation;
   persona: Persona;
   hero_image?: string;
-  audio_url?: string;
-  video_url?: string;
   content: string;
   created_at: string;
 }

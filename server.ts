@@ -32,6 +32,7 @@ db.exec(`
     hero_image TEXT,
     audio_url TEXT,
     video_url TEXT,
+    weather TEXT,
     content TEXT,
     places TEXT,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -104,11 +105,11 @@ async function startServer() {
 
   // Itineraries
   app.post("/api/itineraries", authenticate, (req: any, res) => {
-    const { destination, interests, duration, budget, transportation, persona, hero_image, audio_url, video_url, content, places } = req.body;
+    const { destination, interests, duration, budget, transportation, persona, hero_image, audio_url, video_url, weather, content, places } = req.body;
     const info = db.prepare(`
-      INSERT INTO itineraries (user_id, destination, interests, duration, budget, transportation, persona, hero_image, audio_url, video_url, content, places)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `).run(req.user.id, destination, JSON.stringify(interests), duration, budget, transportation, persona, hero_image, audio_url, video_url, content, JSON.stringify(places));
+      INSERT INTO itineraries (user_id, destination, interests, duration, budget, transportation, persona, hero_image, audio_url, video_url, weather, content, places)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `).run(req.user.id, destination, JSON.stringify(interests), duration, budget, transportation, persona, hero_image, audio_url, video_url, weather, content, JSON.stringify(places));
     res.json({ id: info.lastInsertRowid });
   });
 
@@ -117,7 +118,8 @@ async function startServer() {
     res.json(trips.map((t: any) => ({
       ...t,
       interests: JSON.parse(t.interests),
-      places: JSON.parse(t.places)
+      places: JSON.parse(t.places),
+      weather: t.weather ? JSON.parse(t.weather) : null
     })));
   });
 

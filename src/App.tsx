@@ -125,7 +125,8 @@ export default function App() {
       places: trip.places,
       hero_image: trip.hero_image,
       audio_url: trip.audio_url,
-      video_url: trip.video_url
+      video_url: trip.video_url,
+      weather: trip.weather
     });
     setDestination(trip.destination);
     setSelectedInterests(trip.interests);
@@ -154,7 +155,7 @@ export default function App() {
             </div>
             <div className="flex flex-col">
               <span className="text-lg font-display font-bold text-brand-text-primary tracking-tight leading-none">VoyageAI</span>
-              <span className="text-[9px] font-bold text-brand-accent uppercase tracking-widest mt-0.5">v3.0.0</span>
+              <span className="text-[9px] font-bold text-brand-accent uppercase tracking-widest mt-0.5">v4.0.0</span>
             </div>
           </div>
           
