@@ -1,11 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Compass, Sparkles, ArrowRight, RefreshCw, ChevronLeft } from 'lucide-react';
+import { Compass, Sparkles, ArrowRight, RefreshCw, ChevronLeft, LogIn, Map } from 'lucide-react';
 import { InterestCard } from './components/InterestCard';
 import { LocationPicker } from './components/LocationPicker';
 import { ItineraryDisplay } from './components/ItineraryDisplay';
+import { AuthModal } from './components/AuthModal';
+import { UserMenu } from './components/UserMenu';
+import { MyTrips } from './components/MyTrips';
 import { generateItinerary } from './services/gemini';
-import { Interest, Location, ItineraryResponse } from './types';
+import { Interest, Location, ItineraryResponse, User, SavedItinerary } from './types';
 import { cn } from './lib/utils';
 
 const INTERESTS: Interest[] = ['gourmet', 'adventure', 'cultural', 'relaxation', 'shopping'];
@@ -16,6 +19,33 @@ export default function App() {
   const [destination, setDestination] = useState('');
   const [loading, setLoading] = useState(false);
   const [itinerary, setItinerary] = useState<ItineraryResponse | null>(null);
+  
+  // User State
+  const [user, setUser] = useState<User | null>(null);
+  const [isAuthOpen, setIsAuthOpen] = useState(false);
+  const [view, setView] = useState<'planner' | 'trips'>('planner');
+
+  useEffect(() => {
+    checkAuth();
+  }, []);
+
+  const checkAuth = async () => {
+    try {
+      const res = await fetch('/api/auth/me');
+      if (res.ok) {
+        const data = await res.json();
+        setUser(data.user);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleLogout = async () => {
+    await fetch('/api/auth/logout', { method: 'POST' });
+    setUser(null);
+    setView('planner');
+  };
 
   const toggleInterest = (interest: Interest) => {
     setSelectedInterests(prev => 
@@ -49,6 +79,17 @@ export default function App() {
 
   const reset = () => {
     setItinerary(null);
+    setView('planner');
+  };
+
+  const handleSelectSavedTrip = (trip: SavedItinerary) => {
+    setItinerary({
+      itinerary: trip.content,
+      places: trip.places
+    });
+    setDestination(trip.destination);
+    setSelectedInterests(trip.interests);
+    setView('planner');
   };
 
   return (
@@ -71,26 +112,71 @@ export default function App() {
           </div>
           
           <nav className="hidden md:flex items-center gap-8">
-            <a href="#" className="text-sm font-medium text-brand-text-secondary hover:text-brand-accent transition-colors">Planner</a>
+            <button 
+              onClick={() => { setView('planner'); setItinerary(null); }}
+              className={cn(
+                "text-sm font-medium transition-colors",
+                view === 'planner' ? "text-brand-accent" : "text-brand-text-secondary hover:text-brand-accent"
+              )}
+            >
+              Planner
+            </button>
+            {user && (
+              <button 
+                onClick={() => setView('trips')}
+                className={cn(
+                  "text-sm font-medium transition-colors",
+                  view === 'trips' ? "text-brand-accent" : "text-brand-text-secondary hover:text-brand-accent"
+                )}
+              >
+                My Trips
+              </button>
+            )}
             <a href="#" className="text-sm font-medium text-brand-text-secondary hover:text-brand-accent transition-colors">Destinations</a>
-            <a href="#" className="text-sm font-medium text-brand-text-secondary hover:text-brand-accent transition-colors">Community</a>
           </nav>
 
-          {itinerary && (
-            <button 
-              onClick={reset}
-              className="text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 text-brand-accent hover:text-brand-accent-hover transition-colors"
-            >
-              <ChevronLeft className="w-4 h-4" />
-              New Search
-            </button>
-          )}
+          <div className="flex items-center gap-4">
+            {user ? (
+              <UserMenu 
+                user={user} 
+                onLogout={handleLogout} 
+                onViewTrips={() => setView('trips')} 
+              />
+            ) : (
+              <button 
+                onClick={() => setIsAuthOpen(true)}
+                className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-brand-accent text-white text-xs font-bold uppercase tracking-wider hover:bg-brand-accent-hover transition-all shadow-lg shadow-blue-500/20"
+              >
+                <LogIn className="w-3.5 h-3.5" />
+                Sign In
+              </button>
+            )}
+
+            {itinerary && (
+              <button 
+                onClick={reset}
+                className="text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 text-brand-accent hover:text-brand-accent-hover transition-colors"
+              >
+                <ChevronLeft className="w-4 h-4" />
+                New Search
+              </button>
+            )}
+          </div>
         </div>
       </header>
 
       <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 w-full relative z-10">
         <AnimatePresence mode="wait">
-          {!itinerary ? (
+          {view === 'trips' ? (
+            <motion.div
+              key="trips"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+            >
+              <MyTrips onSelect={handleSelectSavedTrip} />
+            </motion.div>
+          ) : !itinerary ? (
             <motion.div
               key="setup"
               initial={{ opacity: 0, y: 10 }}
@@ -187,11 +273,22 @@ export default function App() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
             >
-              <ItineraryDisplay data={itinerary} />
+              <ItineraryDisplay 
+                data={itinerary} 
+                user={user} 
+                destination={destination} 
+                interests={selectedInterests} 
+              />
             </motion.div>
           )}
         </AnimatePresence>
       </main>
+
+      <AuthModal 
+        isOpen={isAuthOpen} 
+        onClose={() => setIsAuthOpen(false)} 
+        onSuccess={(u) => setUser(u)} 
+      />
 
       {/* Footer */}
       <footer className="bg-brand-surface/30 backdrop-blur-md border-t border-brand-border py-12 mt-auto relative z-10">

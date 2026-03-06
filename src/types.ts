@@ -19,3 +19,18 @@ export interface ItineraryResponse {
     uri: string;
   }>;
 }
+
+export interface User {
+  id: number;
+  email: string;
+  name: string;
+}
+
+export interface SavedItinerary extends ItineraryResponse {
+  id: number;
+  user_id: number;
+  destination: string;
+  interests: Interest[];
+  content: string;
+  created_at: string;
+}

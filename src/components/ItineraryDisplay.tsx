@@ -1,13 +1,48 @@
+import React, { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
-import { ItineraryResponse } from '../types';
-import { MapPin, ExternalLink, Calendar, Sparkles } from 'lucide-react';
+import { ItineraryResponse, User } from '../types';
+import { MapPin, ExternalLink, Calendar, Sparkles, Bookmark, Check, Loader2 } from 'lucide-react';
 import { motion } from 'motion/react';
+import { cn } from '../lib/utils';
 
 interface ItineraryDisplayProps {
   data: ItineraryResponse;
+  user: User | null;
+  destination: string;
+  interests: string[];
 }
 
-export function ItineraryDisplay({ data }: ItineraryDisplayProps) {
+export function ItineraryDisplay({ data, user, destination, interests }: ItineraryDisplayProps) {
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+
+  const handleSave = async () => {
+    if (!user) {
+      alert("Please sign in to save your trips.");
+      return;
+    }
+    setSaving(true);
+    try {
+      const res = await fetch('/api/itineraries', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          destination,
+          interests,
+          content: data.itinerary,
+          places: data.places
+        })
+      });
+      if (res.ok) {
+        setSaved(true);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setSaving(false);
+    }
+  };
+
   return (
     <motion.div 
       initial={{ opacity: 0, y: 10 }}
@@ -20,9 +55,33 @@ export function ItineraryDisplay({ data }: ItineraryDisplayProps) {
             <Calendar className="w-5 h-5" />
             <h2 className="text-xl font-display font-bold">Daily Itinerary</h2>
           </div>
-          <div className="flex items-center gap-2 px-3 py-1 bg-brand-accent/10 rounded-full text-[10px] font-bold uppercase tracking-widest text-brand-accent border border-brand-accent/20">
-            <Sparkles className="w-3 h-3" />
-            AI Generated Plan
+          
+          <div className="flex items-center gap-3">
+            {user && (
+              <button
+                onClick={handleSave}
+                disabled={saving || saved}
+                className={cn(
+                  "flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-widest transition-all",
+                  saved 
+                    ? "bg-emerald-500/10 text-emerald-500 border border-emerald-500/20" 
+                    : "bg-brand-accent/10 text-brand-accent border border-brand-accent/20 hover:bg-brand-accent hover:text-white"
+                )}
+              >
+                {saving ? (
+                  <Loader2 className="w-3 h-3 animate-spin" />
+                ) : saved ? (
+                  <Check className="w-3 h-3" />
+                ) : (
+                  <Bookmark className="w-3 h-3" />
+                )}
+                {saved ? 'Saved' : 'Save Trip'}
+              </button>
+            )}
+            <div className="flex items-center gap-2 px-3 py-2 bg-brand-accent/10 rounded-xl text-[10px] font-bold uppercase tracking-widest text-brand-accent border border-brand-accent/20">
+              <Sparkles className="w-3 h-3" />
+              AI Generated Plan
+            </div>
           </div>
         </div>
         
