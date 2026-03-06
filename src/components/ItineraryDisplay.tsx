@@ -14,13 +14,13 @@ export function ItineraryDisplay({ data }: ItineraryDisplayProps) {
       animate={{ opacity: 1, y: 0 }}
       className="max-w-4xl mx-auto space-y-10"
     >
-      <div className="bg-white rounded-2xl p-8 md:p-12 shadow-sm border border-brand-border">
+      <div className="bg-brand-surface/50 backdrop-blur-sm rounded-2xl p-8 md:p-12 shadow-2xl border border-brand-border">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-10 pb-6 border-b border-brand-border">
           <div className="flex items-center gap-3 text-brand-accent">
             <Calendar className="w-5 h-5" />
             <h2 className="text-xl font-display font-bold">Daily Itinerary</h2>
           </div>
-          <div className="flex items-center gap-2 px-3 py-1 bg-brand-surface rounded-full text-[10px] font-bold uppercase tracking-widest text-brand-text-secondary">
+          <div className="flex items-center gap-2 px-3 py-1 bg-brand-accent/10 rounded-full text-[10px] font-bold uppercase tracking-widest text-brand-accent border border-brand-accent/20">
             <Sparkles className="w-3 h-3" />
             AI Generated Plan
           </div>
@@ -46,7 +46,7 @@ export function ItineraryDisplay({ data }: ItineraryDisplayProps) {
                 href={place.uri}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group flex flex-col p-5 bg-white rounded-xl border border-brand-border hover:border-brand-accent hover:shadow-md transition-all"
+                className="group flex flex-col p-5 bg-brand-surface/50 backdrop-blur-sm rounded-xl border border-brand-border hover:border-brand-accent hover:shadow-xl hover:shadow-blue-500/5 transition-all"
               >
                 <div className="flex items-start justify-between mb-2">
                   <span className="font-semibold text-sm text-brand-text-primary group-hover:text-brand-accent transition-colors line-clamp-1">

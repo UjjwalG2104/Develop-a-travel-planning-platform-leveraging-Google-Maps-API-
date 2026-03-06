@@ -52,12 +52,19 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-brand-bg flex flex-col">
+    <div className="min-h-screen bg-brand-bg flex flex-col relative">
+      {/* Animated Background */}
+      <div className="bg-animate">
+        <div className="blob top-[-10%] left-[-10%]" />
+        <div className="blob bottom-[-10%] right-[-10%] [animation-delay:-5s]" />
+        <div className="blob top-[20%] right-[10%] [animation-delay:-10s] opacity-50" />
+      </div>
+
       {/* Header */}
-      <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-brand-border">
+      <header className="sticky top-0 z-50 bg-brand-bg/60 backdrop-blur-xl border-b border-brand-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 bg-brand-accent rounded-lg flex items-center justify-center shadow-sm shadow-blue-200">
+            <div className="w-8 h-8 bg-brand-accent rounded-lg flex items-center justify-center shadow-lg shadow-blue-500/20">
               <Compass className="w-5 h-5 text-white" />
             </div>
             <span className="text-lg font-display font-bold text-brand-text-primary tracking-tight">VoyageAI</span>
@@ -81,7 +88,7 @@ export default function App() {
         </div>
       </header>
 
-      <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 w-full">
+      <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 w-full relative z-10">
         <AnimatePresence mode="wait">
           {!itinerary ? (
             <motion.div
@@ -93,13 +100,17 @@ export default function App() {
             >
               {/* Hero */}
               <section className="text-center space-y-6">
-                <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-50 text-brand-accent rounded-full text-[10px] font-bold uppercase tracking-widest">
+                <motion.div 
+                  initial={{ scale: 0.9, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  className="inline-flex items-center gap-2 px-3 py-1 bg-brand-accent/10 text-brand-accent rounded-full text-[10px] font-bold uppercase tracking-widest border border-brand-accent/20"
+                >
                   <Sparkles className="w-3 h-3" />
                   Next-Gen Travel Planning
-                </div>
+                </motion.div>
                 <h1 className="text-4xl md:text-6xl font-display font-bold text-brand-text-primary leading-[1.1]">
                   Intelligent itineraries for the <br className="hidden md:block" />
-                  <span className="text-brand-accent">modern explorer.</span>
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-accent to-blue-400">modern explorer.</span>
                 </h1>
                 <p className="text-base text-brand-text-secondary max-w-2xl mx-auto">
                   Leveraging advanced AI and real-time mapping to curate your perfect day. 
@@ -109,10 +120,10 @@ export default function App() {
 
               <div className="grid grid-cols-1 gap-12">
                 {/* Step 1: Destination */}
-                <section className="space-y-6 bg-white p-8 rounded-2xl border border-brand-border shadow-sm">
+                <section className="space-y-6 bg-brand-surface/50 backdrop-blur-sm p-8 rounded-2xl border border-brand-border shadow-2xl">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <div className="w-6 h-6 rounded-md bg-brand-surface border border-brand-border flex items-center justify-center text-[10px] font-bold text-brand-text-secondary">01</div>
+                      <div className="w-6 h-6 rounded-md bg-brand-bg border border-brand-border flex items-center justify-center text-[10px] font-bold text-brand-text-secondary">01</div>
                       <h2 className="text-sm font-bold uppercase tracking-widest text-brand-text-secondary">Set Destination</h2>
                     </div>
                   </div>
@@ -123,10 +134,10 @@ export default function App() {
                 </section>
 
                 {/* Step 2: Interests */}
-                <section className="space-y-6 bg-white p-8 rounded-2xl border border-brand-border shadow-sm">
+                <section className="space-y-6 bg-brand-surface/50 backdrop-blur-sm p-8 rounded-2xl border border-brand-border shadow-2xl">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <div className="w-6 h-6 rounded-md bg-brand-surface border border-brand-border flex items-center justify-center text-[10px] font-bold text-brand-text-secondary">02</div>
+                      <div className="w-6 h-6 rounded-md bg-brand-bg border border-brand-border flex items-center justify-center text-[10px] font-bold text-brand-text-secondary">02</div>
                       <h2 className="text-sm font-bold uppercase tracking-widest text-brand-text-secondary">Select Interests</h2>
                     </div>
                     <span className="text-[10px] font-medium text-brand-text-secondary italic">Multiple selections allowed</span>
@@ -150,8 +161,8 @@ export default function App() {
                   onClick={handleGenerate}
                   disabled={loading}
                   className={cn(
-                    "w-full md:w-auto px-10 py-4 bg-brand-text-primary text-white rounded-xl font-bold text-sm flex items-center justify-center gap-2.5 transition-all shadow-lg shadow-slate-200",
-                    "hover:bg-brand-accent hover:shadow-blue-100 hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed"
+                    "w-full md:w-auto px-10 py-4 bg-brand-accent text-white rounded-xl font-bold text-sm flex items-center justify-center gap-2.5 transition-all shadow-lg shadow-blue-500/20",
+                    "hover:bg-brand-accent-hover hover:shadow-blue-500/40 hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed"
                   )}
                 >
                   {loading ? (
@@ -183,11 +194,11 @@ export default function App() {
       </main>
 
       {/* Footer */}
-      <footer className="bg-white border-t border-brand-border py-12 mt-auto">
+      <footer className="bg-brand-surface/30 backdrop-blur-md border-t border-brand-border py-12 mt-auto relative z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row justify-between items-center gap-8">
             <div className="flex items-center gap-2.5">
-              <div className="w-6 h-6 bg-brand-text-primary rounded flex items-center justify-center">
+              <div className="w-6 h-6 bg-brand-accent rounded flex items-center justify-center">
                 <Compass className="w-3.5 h-3.5 text-white" />
               </div>
               <span className="text-sm font-display font-bold text-brand-text-primary">VoyageAI</span>

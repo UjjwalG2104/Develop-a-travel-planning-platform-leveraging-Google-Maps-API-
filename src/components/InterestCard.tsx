@@ -25,15 +25,15 @@ export function InterestCard({ interest, selected, onToggle }: InterestCardProps
       onClick={() => onToggle(interest)}
       className={cn(
         "flex flex-col items-start p-5 rounded-xl border transition-all duration-200 text-left",
-        "hover:shadow-md active:scale-[0.98]",
+        "hover:shadow-xl hover:shadow-blue-500/5 active:scale-[0.98]",
         selected 
-          ? "bg-brand-accent text-white border-brand-accent shadow-blue-100" 
-          : "bg-white text-brand-text-primary border-brand-border hover:border-brand-accent/30"
+          ? "bg-brand-accent text-white border-brand-accent shadow-lg shadow-blue-500/20" 
+          : "bg-brand-surface/50 text-brand-text-primary border-brand-border hover:border-brand-accent/30"
       )}
     >
       <div className={cn(
         "mb-4 p-2.5 rounded-lg",
-        selected ? "bg-white/20" : "bg-brand-surface"
+        selected ? "bg-white/20" : "bg-brand-bg"
       )}>
         {React.cloneElement(config.icon as any, { 
           className: cn("w-5 h-5", selected ? "text-white" : "text-brand-accent") 

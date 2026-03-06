@@ -52,7 +52,7 @@ export function LocationPicker({ onLocationChange, onDestinationChange }: Locati
               onDestinationChange(e.target.value);
             }}
             className={cn(
-              "w-full pl-11 pr-4 py-3.5 bg-white rounded-xl border border-brand-border focus:outline-none focus:ring-2 focus:ring-brand-accent/10 focus:border-brand-accent transition-all text-sm",
+              "w-full pl-11 pr-4 py-3.5 bg-brand-bg/50 rounded-xl border border-brand-border focus:outline-none focus:ring-2 focus:ring-brand-accent/10 focus:border-brand-accent transition-all text-sm text-brand-text-primary",
               useCurrent && "bg-brand-surface opacity-60 cursor-not-allowed"
             )}
           />
@@ -64,8 +64,8 @@ export function LocationPicker({ onLocationChange, onDestinationChange }: Locati
           className={cn(
             "flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl border font-medium text-sm transition-all",
             useCurrent 
-              ? "bg-brand-accent text-white border-brand-accent shadow-sm" 
-              : "bg-white text-brand-text-primary border-brand-border hover:bg-brand-surface"
+              ? "bg-brand-accent text-white border-brand-accent shadow-lg shadow-blue-500/20" 
+              : "bg-brand-surface/50 text-brand-text-primary border-brand-border hover:bg-brand-surface"
           )}
         >
           {loading ? (
