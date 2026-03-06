@@ -109,6 +109,9 @@ export function MyTrips({ onSelect }: MyTripsProps) {
                 <span className="px-2 py-0.5 bg-brand-bg border border-brand-border rounded-md text-[9px] font-bold uppercase tracking-wider text-brand-text-secondary">
                   {trip.budget}
                 </span>
+                <span className="px-2 py-0.5 bg-brand-bg border border-brand-border rounded-md text-[9px] font-bold uppercase tracking-wider text-brand-text-secondary">
+                  {trip.transportation}
+                </span>
                 {trip.interests.map((interest) => (
                   <span key={interest} className="px-2 py-0.5 bg-brand-bg border border-brand-border rounded-md text-[9px] font-bold uppercase tracking-wider text-brand-text-secondary">
                     {interest}

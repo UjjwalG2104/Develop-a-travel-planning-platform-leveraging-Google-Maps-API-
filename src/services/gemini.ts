@@ -1,5 +1,5 @@
 import { GoogleGenAI } from "@google/genai";
-import { Interest, Location, ItineraryResponse, Budget } from "../types";
+import { Interest, Location, ItineraryResponse, Budget, Transportation } from "../types";
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || "" });
 
@@ -8,7 +8,8 @@ export async function generateItinerary(
   location: Location | null,
   destination?: string,
   duration: number = 1,
-  budget: Budget = 'standard'
+  budget: Budget = 'standard',
+  transportation: Transportation = 'transit'
 ): Promise<ItineraryResponse> {
   const model = "gemini-2.5-flash";
   
@@ -18,14 +19,19 @@ export async function generateItinerary(
     : destination ? `in ${destination}` : "in a popular travel destination";
 
   const prompt = `Plan a personalized ${duration}-day travel itinerary focused on ${interestLabels} ${locationContext}. 
-  The budget for this trip is ${budget}.
+  
+  Context:
+  - Budget: ${budget}
+  - Primary Transportation: ${transportation}
   
   Instructions:
   1. For each day, provide a clear heading (e.g., Day 1: Exploration).
   2. Include specific places to visit, eat, and explore for morning, afternoon, and evening.
-  3. For each place, provide a brief description and why it fits the selected interests and ${budget} budget.
-  4. Format the response in Markdown with clear structure.
-  5. Use Google Maps to find real, existing places.`;
+  3. Optimize the route for ${transportation}.
+  4. For each place, provide a brief description and why it fits the selected interests, ${budget} budget, and is accessible via ${transportation}.
+  5. Include a "Weather & Packing Advice" section at the end based on the typical climate of ${destination || 'the location'}.
+  6. Format the response in Markdown with clear structure.
+  7. Use Google Maps to find real, existing places.`;
 
   const config: any = {
     tools: [{ googleMaps: {} }],

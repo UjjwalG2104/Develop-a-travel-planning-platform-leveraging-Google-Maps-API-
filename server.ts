@@ -27,6 +27,7 @@ db.exec(`
     interests TEXT,
     duration INTEGER DEFAULT 1,
     budget TEXT DEFAULT 'standard',
+    transportation TEXT DEFAULT 'transit',
     content TEXT,
     places TEXT,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -99,11 +100,11 @@ async function startServer() {
 
   // Itineraries
   app.post("/api/itineraries", authenticate, (req: any, res) => {
-    const { destination, interests, duration, budget, content, places } = req.body;
+    const { destination, interests, duration, budget, transportation, content, places } = req.body;
     const info = db.prepare(`
-      INSERT INTO itineraries (user_id, destination, interests, duration, budget, content, places)
-      VALUES (?, ?, ?, ?, ?, ?, ?)
-    `).run(req.user.id, destination, JSON.stringify(interests), duration, budget, content, JSON.stringify(places));
+      INSERT INTO itineraries (user_id, destination, interests, duration, budget, transportation, content, places)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    `).run(req.user.id, destination, JSON.stringify(interests), duration, budget, transportation, content, JSON.stringify(places));
     res.json({ id: info.lastInsertRowid });
   });
 

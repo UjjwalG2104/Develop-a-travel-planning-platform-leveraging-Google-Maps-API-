@@ -12,9 +12,10 @@ interface ItineraryDisplayProps {
   interests: string[];
   duration: number;
   budget: string;
+  transportation: string;
 }
 
-export function ItineraryDisplay({ data, user, destination, interests, duration, budget }: ItineraryDisplayProps) {
+export function ItineraryDisplay({ data, user, destination, interests, duration, budget, transportation }: ItineraryDisplayProps) {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
@@ -33,6 +34,7 @@ export function ItineraryDisplay({ data, user, destination, interests, duration,
           interests,
           duration,
           budget,
+          transportation,
           content: data.itinerary,
           places: data.places
         })
