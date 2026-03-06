@@ -1,6 +1,7 @@
 export type Interest = 'gourmet' | 'adventure' | 'cultural' | 'relaxation' | 'shopping';
 export type Budget = 'economy' | 'standard' | 'luxury';
 export type Transportation = 'walking' | 'transit' | 'driving' | 'cycling';
+export type Persona = 'solo' | 'couple' | 'family' | 'friends' | 'business';
 
 export interface Location {
   lat: number;
@@ -36,6 +37,8 @@ export interface SavedItinerary extends ItineraryResponse {
   duration: number;
   budget: Budget;
   transportation: Transportation;
+  persona: Persona;
+  hero_image?: string;
   content: string;
   created_at: string;
 }
