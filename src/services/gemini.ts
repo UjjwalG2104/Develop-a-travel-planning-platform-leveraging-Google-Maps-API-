@@ -31,6 +31,48 @@ export async function generateAudioItinerary(text: string): Promise<string | nul
   }
 }
 
+export async function generateDestinationVideo(destination: string): Promise<string | null> {
+  try {
+    // Create a new instance for Veo to use the selected API key
+    const veoAi = new GoogleGenAI({ apiKey: process.env.API_KEY || process.env.GEMINI_API_KEY || "" });
+    
+    let operation = await veoAi.models.generateVideos({
+      model: 'veo-3.1-fast-generate-preview',
+      prompt: `A cinematic, high-quality aerial drone shot of ${destination}. Vibrant colors, professional lighting, 4k, travel documentary style.`,
+      config: {
+        numberOfVideos: 1,
+        resolution: '720p',
+        aspectRatio: '16:9'
+      }
+    });
+
+    // Poll for completion (limited attempts for UI responsiveness)
+    let attempts = 0;
+    while (!operation.done && attempts < 12) { // Max 2 minutes
+      await new Promise(resolve => setTimeout(resolve, 10000));
+      operation = await veoAi.operations.getVideosOperation({ operation: operation });
+      attempts++;
+    }
+
+    if (operation.done && operation.response?.generatedVideos?.[0]?.video?.uri) {
+      const downloadLink = operation.response.generatedVideos[0].video.uri;
+      // Fetch with the API key in headers
+      const response = await fetch(downloadLink, {
+        method: 'GET',
+        headers: {
+          'x-goog-api-key': process.env.API_KEY || process.env.GEMINI_API_KEY || "",
+        },
+      });
+      const blob = await response.blob();
+      return URL.createObjectURL(blob);
+    }
+    return null;
+  } catch (error) {
+    console.error("Video generation failed:", error);
+    return null;
+  }
+}
+
 export async function generateDestinationImage(destination: string): Promise<string | null> {
   try {
     const response = await ai.models.generateContent({

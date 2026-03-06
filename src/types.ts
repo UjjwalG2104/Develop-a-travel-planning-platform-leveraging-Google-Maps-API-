@@ -22,6 +22,7 @@ export interface ItineraryResponse {
     uri: string;
   }>;
   audio_url?: string | null;
+  video_url?: string | null;
 }
 
 export interface User {
@@ -41,6 +42,7 @@ export interface SavedItinerary extends ItineraryResponse {
   persona: Persona;
   hero_image?: string;
   audio_url?: string;
+  video_url?: string;
   content: string;
   created_at: string;
 }

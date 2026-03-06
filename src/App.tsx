@@ -7,9 +7,19 @@ import { ItineraryDisplay } from './components/ItineraryDisplay';
 import { AuthModal } from './components/AuthModal';
 import { UserMenu } from './components/UserMenu';
 import { MyTrips } from './components/MyTrips';
-import { generateItinerary, generateDestinationImage, generateAudioItinerary } from './services/gemini';
+import { generateItinerary, generateDestinationImage, generateAudioItinerary, generateDestinationVideo } from './services/gemini';
 import { Interest, Location, ItineraryResponse, User, SavedItinerary, Budget, Transportation, Persona } from './types';
 import { cn } from './lib/utils';
+
+// Add window type for aistudio
+declare global {
+  interface Window {
+    aistudio: {
+      hasSelectedApiKey: () => Promise<boolean>;
+      openSelectKey: () => Promise<void>;
+    };
+  }
+}
 
 const INTERESTS: Interest[] = ['gourmet', 'adventure', 'cultural', 'relaxation', 'shopping'];
 
@@ -22,7 +32,7 @@ export default function App() {
   const [location, setLocation] = useState<Location | null>(null);
   const [destination, setDestination] = useState('');
   const [loading, setLoading] = useState(false);
-  const [itinerary, setItinerary] = useState<ItineraryResponse & { hero_image?: string | null } | null>(null);
+  const [itinerary, setItinerary] = useState<ItineraryResponse & { hero_image?: string | null; audio_url?: string | null; video_url?: string | null } | null>(null);
   
   // User State
   const [user, setUser] = useState<User | null>(null);
@@ -69,6 +79,15 @@ export default function App() {
       return;
     }
 
+    // Check for Veo API Key
+    const hasKey = await window.aistudio.hasSelectedApiKey();
+    if (!hasKey) {
+      const confirm = window.confirm("Cinematic video generation requires a paid Gemini API key. Would you like to select one now? (You can still generate the itinerary without it)");
+      if (confirm) {
+        await window.aistudio.openSelectKey();
+      }
+    }
+
     setLoading(true);
     try {
       const [itineraryResult, heroImage] = await Promise.all([
@@ -76,12 +95,16 @@ export default function App() {
         generateDestinationImage(destination || "a beautiful travel destination")
       ]);
       
-      const audioUrl = await generateAudioItinerary(itineraryResult.itinerary);
+      const [audioUrl, videoUrl] = await Promise.all([
+        generateAudioItinerary(itineraryResult.itinerary),
+        generateDestinationVideo(destination || "a beautiful travel destination")
+      ]);
       
       setItinerary({
         ...itineraryResult,
         hero_image: heroImage,
-        audio_url: audioUrl
+        audio_url: audioUrl,
+        video_url: videoUrl
       });
     } catch (error) {
       console.error(error);
@@ -101,7 +124,8 @@ export default function App() {
       itinerary: trip.content,
       places: trip.places,
       hero_image: trip.hero_image,
-      audio_url: trip.audio_url
+      audio_url: trip.audio_url,
+      video_url: trip.video_url
     });
     setDestination(trip.destination);
     setSelectedInterests(trip.interests);
@@ -130,7 +154,7 @@ export default function App() {
             </div>
             <div className="flex flex-col">
               <span className="text-lg font-display font-bold text-brand-text-primary tracking-tight leading-none">VoyageAI</span>
-              <span className="text-[9px] font-bold text-brand-accent uppercase tracking-widest mt-0.5">v2.5.0</span>
+              <span className="text-[9px] font-bold text-brand-accent uppercase tracking-widest mt-0.5">v3.0.0</span>
             </div>
           </div>
           

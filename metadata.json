@@ -1,5 +1,5 @@
 {
   "name": "VoyageAI",
-  "description": "AI-powered travel planner with Google Maps grounding for personalized itineraries based on your interests and location.",
+  "description": "The ultimate AI travel suite. Features cinematic video teasers, audio guides, and real-time grounding for the most immersive travel planning experience.",
   "requestFramePermissions": ["geolocation"]
 }

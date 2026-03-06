@@ -6,7 +6,7 @@ import { motion } from 'motion/react';
 import { cn } from '../lib/utils';
 
 interface ItineraryDisplayProps {
-  data: ItineraryResponse & { hero_image?: string | null; audio_url?: string | null };
+  data: ItineraryResponse & { hero_image?: string | null; audio_url?: string | null; video_url?: string | null };
   user: User | null;
   destination: string;
   interests: string[];
@@ -20,6 +20,7 @@ export function ItineraryDisplay({ data, user, destination, interests, duration,
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [showVideo, setShowVideo] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const toggleAudio = () => {
@@ -52,6 +53,7 @@ export function ItineraryDisplay({ data, user, destination, interests, duration,
           persona,
           hero_image: data.hero_image,
           audio_url: data.audio_url,
+          video_url: data.video_url,
           content: data.itinerary,
           places: data.places
         })
@@ -68,45 +70,71 @@ export function ItineraryDisplay({ data, user, destination, interests, duration,
 
   return (
     <div className="space-y-12">
-      {/* Hero Image Section */}
-      {data.hero_image && (
+      {/* Hero Section */}
+      {(data.hero_image || data.video_url) && (
         <motion.div 
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="relative w-full h-[400px] rounded-3xl overflow-hidden shadow-2xl border border-brand-border"
+          className="relative w-full h-[400px] rounded-3xl overflow-hidden shadow-2xl border border-brand-border group"
         >
-          <img 
-            src={data.hero_image} 
-            alt={destination} 
-            className="w-full h-full object-cover"
-            referrerPolicy="no-referrer"
-          />
+          {showVideo && data.video_url ? (
+            <video 
+              src={data.video_url} 
+              autoPlay 
+              loop 
+              muted 
+              playsInline
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <img 
+              src={data.hero_image || ''} 
+              alt={destination} 
+              className="w-full h-full object-cover"
+              referrerPolicy="no-referrer"
+            />
+          )}
+          
           <div className="absolute inset-0 bg-gradient-to-t from-brand-bg via-transparent to-transparent" />
           
-          {/* Audio Player Overlay */}
-          {data.audio_url && (
-            <div className="absolute top-6 right-6">
-              <audio 
-                ref={audioRef} 
-                src={data.audio_url} 
-                onEnded={() => setIsPlaying(false)}
-                className="hidden"
-              />
+          {/* Top Controls Overlay */}
+          <div className="absolute top-6 left-6 right-6 flex justify-between items-start">
+            {data.video_url && (
               <button 
-                onClick={toggleAudio}
-                className="flex items-center gap-3 px-4 py-2.5 bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl text-white hover:bg-white/20 transition-all group shadow-2xl"
+                onClick={() => setShowVideo(!showVideo)}
+                className="flex items-center gap-2 px-4 py-2 bg-brand-accent/90 backdrop-blur-xl border border-white/20 rounded-xl text-white hover:bg-brand-accent transition-all shadow-xl"
               >
-                <div className="w-8 h-8 rounded-full bg-brand-accent flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                  {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4 ml-0.5" />}
-                </div>
-                <div className="flex flex-col items-start">
-                  <span className="text-[10px] font-bold uppercase tracking-widest opacity-70">Audio Guide</span>
-                  <span className="text-xs font-bold">Listen to Summary</span>
-                </div>
-                <Volume2 className={cn("w-4 h-4 ml-2 opacity-50", isPlaying && "animate-pulse opacity-100")} />
+                <RefreshCw className={cn("w-4 h-4", showVideo && "animate-spin-slow")} />
+                <span className="text-[10px] font-bold uppercase tracking-widest">
+                  {showVideo ? 'Show Photo' : 'Cinematic Teaser'}
+                </span>
               </button>
-            </div>
-          )}
+            )}
+
+            {data.audio_url && (
+              <div className="flex items-center gap-3">
+                <audio 
+                  ref={audioRef} 
+                  src={data.audio_url} 
+                  onEnded={() => setIsPlaying(false)}
+                  className="hidden"
+                />
+                <button 
+                  onClick={toggleAudio}
+                  className="flex items-center gap-3 px-4 py-2.5 bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl text-white hover:bg-white/20 transition-all group shadow-2xl"
+                >
+                  <div className="w-8 h-8 rounded-full bg-brand-accent flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                    {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4 ml-0.5" />}
+                  </div>
+                  <div className="flex flex-col items-start">
+                    <span className="text-[10px] font-bold uppercase tracking-widest opacity-70">Audio Guide</span>
+                    <span className="text-xs font-bold">Listen</span>
+                  </div>
+                  <Volume2 className={cn("w-4 h-4 ml-2 opacity-50", isPlaying && "animate-pulse opacity-100")} />
+                </button>
+              </div>
+            )}
+          </div>
 
           <div className="absolute bottom-8 left-8 right-8 flex flex-col md:flex-row md:items-end justify-between gap-6">
             <div className="space-y-3">
