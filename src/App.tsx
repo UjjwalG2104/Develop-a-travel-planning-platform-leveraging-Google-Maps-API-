@@ -8,13 +8,15 @@ import { AuthModal } from './components/AuthModal';
 import { UserMenu } from './components/UserMenu';
 import { MyTrips } from './components/MyTrips';
 import { generateItinerary } from './services/gemini';
-import { Interest, Location, ItineraryResponse, User, SavedItinerary } from './types';
+import { Interest, Location, ItineraryResponse, User, SavedItinerary, Budget } from './types';
 import { cn } from './lib/utils';
 
 const INTERESTS: Interest[] = ['gourmet', 'adventure', 'cultural', 'relaxation', 'shopping'];
 
 export default function App() {
   const [selectedInterests, setSelectedInterests] = useState<Interest[]>([]);
+  const [duration, setDuration] = useState(1);
+  const [budget, setBudget] = useState<Budget>('standard');
   const [location, setLocation] = useState<Location | null>(null);
   const [destination, setDestination] = useState('');
   const [loading, setLoading] = useState(false);
@@ -67,7 +69,7 @@ export default function App() {
 
     setLoading(true);
     try {
-      const result = await generateItinerary(selectedInterests, location, destination);
+      const result = await generateItinerary(selectedInterests, location, destination, duration, budget);
       setItinerary(result);
     } catch (error) {
       console.error(error);
@@ -89,6 +91,8 @@ export default function App() {
     });
     setDestination(trip.destination);
     setSelectedInterests(trip.interests);
+    setDuration(trip.duration || 1);
+    setBudget(trip.budget || 'standard');
     setView('planner');
   };
 
@@ -108,7 +112,10 @@ export default function App() {
             <div className="w-8 h-8 bg-brand-accent rounded-lg flex items-center justify-center shadow-lg shadow-blue-500/20">
               <Compass className="w-5 h-5 text-white" />
             </div>
-            <span className="text-lg font-display font-bold text-brand-text-primary tracking-tight">VoyageAI</span>
+            <div className="flex flex-col">
+              <span className="text-lg font-display font-bold text-brand-text-primary tracking-tight leading-none">VoyageAI</span>
+              <span className="text-[9px] font-bold text-brand-accent uppercase tracking-widest mt-0.5">v1.2.0</span>
+            </div>
           </div>
           
           <nav className="hidden md:flex items-center gap-8">
@@ -239,6 +246,55 @@ export default function App() {
                     ))}
                   </div>
                 </section>
+
+                {/* Step 3: Duration & Budget */}
+                <section className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <div className="space-y-6 bg-brand-surface/50 backdrop-blur-sm p-8 rounded-2xl border border-brand-border shadow-2xl">
+                    <div className="flex items-center gap-3">
+                      <div className="w-6 h-6 rounded-md bg-brand-bg border border-brand-border flex items-center justify-center text-[10px] font-bold text-brand-text-secondary">03</div>
+                      <h2 className="text-sm font-bold uppercase tracking-widest text-brand-text-secondary">Duration</h2>
+                    </div>
+                    <div className="flex gap-4">
+                      {[1, 2, 3, 5].map(d => (
+                        <button
+                          key={d}
+                          onClick={() => setDuration(d)}
+                          className={cn(
+                            "flex-1 py-3 rounded-xl border font-bold text-sm transition-all",
+                            duration === d 
+                              ? "bg-brand-accent text-white border-brand-accent shadow-lg shadow-blue-500/20" 
+                              : "bg-brand-bg/50 text-brand-text-secondary border-brand-border hover:border-brand-accent/30"
+                          )}
+                        >
+                          {d} {d === 1 ? 'Day' : 'Days'}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="space-y-6 bg-brand-surface/50 backdrop-blur-sm p-8 rounded-2xl border border-brand-border shadow-2xl">
+                    <div className="flex items-center gap-3">
+                      <div className="w-6 h-6 rounded-md bg-brand-bg border border-brand-border flex items-center justify-center text-[10px] font-bold text-brand-text-secondary">04</div>
+                      <h2 className="text-sm font-bold uppercase tracking-widest text-brand-text-secondary">Budget</h2>
+                    </div>
+                    <div className="flex gap-4">
+                      {(['economy', 'standard', 'luxury'] as Budget[]).map(b => (
+                        <button
+                          key={b}
+                          onClick={() => setBudget(b)}
+                          className={cn(
+                            "flex-1 py-3 rounded-xl border font-bold text-xs uppercase tracking-widest transition-all",
+                            budget === b 
+                              ? "bg-brand-accent text-white border-brand-accent shadow-lg shadow-blue-500/20" 
+                              : "bg-brand-bg/50 text-brand-text-secondary border-brand-border hover:border-brand-accent/30"
+                          )}
+                        >
+                          {b}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </section>
               </div>
 
               {/* Action */}
@@ -278,6 +334,8 @@ export default function App() {
                 user={user} 
                 destination={destination} 
                 interests={selectedInterests} 
+                duration={duration}
+                budget={budget}
               />
             </motion.div>
           )}

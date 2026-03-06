@@ -103,6 +103,12 @@ export function MyTrips({ onSelect }: MyTripsProps) {
               </div>
 
               <div className="flex flex-wrap gap-1.5">
+                <span className="px-2 py-0.5 bg-brand-accent/10 border border-brand-accent/20 rounded-md text-[9px] font-bold uppercase tracking-wider text-brand-accent">
+                  {trip.duration} {trip.duration === 1 ? 'Day' : 'Days'}
+                </span>
+                <span className="px-2 py-0.5 bg-brand-bg border border-brand-border rounded-md text-[9px] font-bold uppercase tracking-wider text-brand-text-secondary">
+                  {trip.budget}
+                </span>
                 {trip.interests.map((interest) => (
                   <span key={interest} className="px-2 py-0.5 bg-brand-bg border border-brand-border rounded-md text-[9px] font-bold uppercase tracking-wider text-brand-text-secondary">
                     {interest}

@@ -1,4 +1,5 @@
 export type Interest = 'gourmet' | 'adventure' | 'cultural' | 'relaxation' | 'shopping';
+export type Budget = 'economy' | 'standard' | 'luxury';
 
 export interface Location {
   lat: number;
@@ -31,6 +32,8 @@ export interface SavedItinerary extends ItineraryResponse {
   user_id: number;
   destination: string;
   interests: Interest[];
+  duration: number;
+  budget: Budget;
   content: string;
   created_at: string;
 }
