@@ -1,7 +1,35 @@
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenAI, Modality } from "@google/genai";
 import { Interest, Location, ItineraryResponse, Budget, Transportation, Persona } from "../types";
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || "" });
+
+export async function generateAudioItinerary(text: string): Promise<string | null> {
+  try {
+    const summaryPrompt = `Summarize this travel itinerary in a cheerful, inviting tone for a short audio guide (max 100 words). Focus on the highlights: ${text.substring(0, 1000)}`;
+    
+    const response = await ai.models.generateContent({
+      model: "gemini-2.5-flash-preview-tts",
+      contents: [{ parts: [{ text: summaryPrompt }] }],
+      config: {
+        responseModalities: [Modality.AUDIO],
+        speechConfig: {
+          voiceConfig: {
+            prebuiltVoiceConfig: { voiceName: 'Kore' },
+          },
+        },
+      },
+    });
+
+    const base64Audio = response.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
+    if (base64Audio) {
+      return `data:audio/wav;base64,${base64Audio}`;
+    }
+    return null;
+  } catch (error) {
+    console.error("Audio generation failed:", error);
+    return null;
+  }
+}
 
 export async function generateDestinationImage(destination: string): Promise<string | null> {
   try {
@@ -42,7 +70,7 @@ export async function generateItinerary(
   transportation: Transportation = 'transit',
   persona: Persona = 'solo'
 ): Promise<ItineraryResponse> {
-  const model = "gemini-2.5-flash";
+  const model = "gemini-3-flash-preview";
   
   const interestLabels = interests.join(", ");
   const locationContext = location 
@@ -61,12 +89,13 @@ export async function generateItinerary(
   2. Include specific places to visit, eat, and explore for morning, afternoon, and evening.
   3. Optimize the route for ${transportation} and ensure activities are suitable for a ${persona} traveler.
   4. For each place, provide a brief description and why it fits the selected interests, ${budget} budget, and ${persona} persona.
-  5. Include a "Weather & Packing Advice" section at the end based on the typical climate of ${destination || 'the location'}.
+  5. Include a "Weather & Packing Advice" section at the end based on CURRENT real-time weather data for ${destination || 'the location'}.
   6. Format the response in Markdown with clear structure.
-  7. Use Google Maps to find real, existing places.`;
+  7. Use Google Maps to find real, existing places.
+  8. Use Google Search to find real-time events or seasonal highlights happening now in ${destination || 'the location'}.`;
 
   const config: any = {
-    tools: [{ googleMaps: {} }],
+    tools: [{ googleMaps: {} }, { googleSearch: {} }],
   };
 
   if (location) {

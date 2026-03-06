@@ -7,7 +7,7 @@ import { ItineraryDisplay } from './components/ItineraryDisplay';
 import { AuthModal } from './components/AuthModal';
 import { UserMenu } from './components/UserMenu';
 import { MyTrips } from './components/MyTrips';
-import { generateItinerary, generateDestinationImage } from './services/gemini';
+import { generateItinerary, generateDestinationImage, generateAudioItinerary } from './services/gemini';
 import { Interest, Location, ItineraryResponse, User, SavedItinerary, Budget, Transportation, Persona } from './types';
 import { cn } from './lib/utils';
 
@@ -76,9 +76,12 @@ export default function App() {
         generateDestinationImage(destination || "a beautiful travel destination")
       ]);
       
+      const audioUrl = await generateAudioItinerary(itineraryResult.itinerary);
+      
       setItinerary({
         ...itineraryResult,
-        hero_image: heroImage
+        hero_image: heroImage,
+        audio_url: audioUrl
       });
     } catch (error) {
       console.error(error);
@@ -97,7 +100,8 @@ export default function App() {
     setItinerary({
       itinerary: trip.content,
       places: trip.places,
-      hero_image: trip.hero_image
+      hero_image: trip.hero_image,
+      audio_url: trip.audio_url
     });
     setDestination(trip.destination);
     setSelectedInterests(trip.interests);
@@ -126,7 +130,7 @@ export default function App() {
             </div>
             <div className="flex flex-col">
               <span className="text-lg font-display font-bold text-brand-text-primary tracking-tight leading-none">VoyageAI</span>
-              <span className="text-[9px] font-bold text-brand-accent uppercase tracking-widest mt-0.5">v2.0.0</span>
+              <span className="text-[9px] font-bold text-brand-accent uppercase tracking-widest mt-0.5">v2.5.0</span>
             </div>
           </div>
           

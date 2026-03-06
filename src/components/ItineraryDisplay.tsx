@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { ItineraryResponse, User } from '../types';
-import { MapPin, ExternalLink, Calendar, Sparkles, Bookmark, Check, Loader2, Share2, RefreshCw } from 'lucide-react';
+import { MapPin, ExternalLink, Calendar, Sparkles, Bookmark, Check, Loader2, Share2, RefreshCw, Play, Pause, Volume2 } from 'lucide-react';
 import { motion } from 'motion/react';
 import { cn } from '../lib/utils';
 
 interface ItineraryDisplayProps {
-  data: ItineraryResponse & { hero_image?: string | null };
+  data: ItineraryResponse & { hero_image?: string | null; audio_url?: string | null };
   user: User | null;
   destination: string;
   interests: string[];
@@ -19,6 +19,19 @@ interface ItineraryDisplayProps {
 export function ItineraryDisplay({ data, user, destination, interests, duration, budget, transportation, persona }: ItineraryDisplayProps) {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  const toggleAudio = () => {
+    if (audioRef.current) {
+      if (isPlaying) {
+        audioRef.current.pause();
+      } else {
+        audioRef.current.play();
+      }
+      setIsPlaying(!isPlaying);
+    }
+  };
 
   const handleSave = async () => {
     if (!user) {
@@ -38,6 +51,7 @@ export function ItineraryDisplay({ data, user, destination, interests, duration,
           transportation,
           persona,
           hero_image: data.hero_image,
+          audio_url: data.audio_url,
           content: data.itinerary,
           places: data.places
         })
@@ -68,6 +82,32 @@ export function ItineraryDisplay({ data, user, destination, interests, duration,
             referrerPolicy="no-referrer"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-brand-bg via-transparent to-transparent" />
+          
+          {/* Audio Player Overlay */}
+          {data.audio_url && (
+            <div className="absolute top-6 right-6">
+              <audio 
+                ref={audioRef} 
+                src={data.audio_url} 
+                onEnded={() => setIsPlaying(false)}
+                className="hidden"
+              />
+              <button 
+                onClick={toggleAudio}
+                className="flex items-center gap-3 px-4 py-2.5 bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl text-white hover:bg-white/20 transition-all group shadow-2xl"
+              >
+                <div className="w-8 h-8 rounded-full bg-brand-accent flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                  {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4 ml-0.5" />}
+                </div>
+                <div className="flex flex-col items-start">
+                  <span className="text-[10px] font-bold uppercase tracking-widest opacity-70">Audio Guide</span>
+                  <span className="text-xs font-bold">Listen to Summary</span>
+                </div>
+                <Volume2 className={cn("w-4 h-4 ml-2 opacity-50", isPlaying && "animate-pulse opacity-100")} />
+              </button>
+            </div>
+          )}
+
           <div className="absolute bottom-8 left-8 right-8 flex flex-col md:flex-row md:items-end justify-between gap-6">
             <div className="space-y-3">
               <div className="flex flex-wrap gap-2">
