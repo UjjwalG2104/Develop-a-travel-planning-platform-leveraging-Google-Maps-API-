@@ -1,0 +1,48 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap');
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Outfit", sans-serif;
+  
+  --color-brand-bg: #ffffff;
+  --color-brand-surface: #f8fafc;
+  --color-brand-border: #e2e8f0;
+  --color-brand-text-primary: #0f172a;
+  --color-brand-text-secondary: #64748b;
+  --color-brand-accent: #2563eb;
+  --color-brand-accent-hover: #1d4ed8;
+}
+
+@layer base {
+  body {
+    @apply bg-brand-bg text-brand-text-primary font-sans antialiased;
+  }
+  
+  h1, h2, h3, h4 {
+    @apply font-display font-semibold tracking-tight;
+  }
+}
+
+.markdown-body {
+  @apply prose prose-slate max-w-none;
+  @apply prose-headings:font-display prose-headings:font-semibold prose-headings:text-brand-text-primary;
+  @apply prose-p:text-brand-text-secondary prose-p:leading-relaxed;
+  @apply prose-strong:text-brand-text-primary;
+  @apply prose-ul:list-disc prose-ol:list-decimal;
+}
+
+/* Custom scrollbar for a more professional feel */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-slate-200 rounded-full hover:bg-slate-300 transition-colors;
+}
+

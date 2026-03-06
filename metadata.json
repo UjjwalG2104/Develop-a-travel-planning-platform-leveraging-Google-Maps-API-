@@ -1,0 +1,5 @@
+{
+  "name": "VoyageAI",
+  "description": "AI-powered travel planner with Google Maps grounding for personalized itineraries based on your interests and location.",
+  "requestFramePermissions": ["geolocation"]
+}
